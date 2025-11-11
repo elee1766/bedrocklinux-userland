@@ -1209,7 +1209,6 @@ static int unregister_backing_id(int backing_id)
 	if (rv < 0) {
 		DEBUG("unregister_backing_id failed", "");
 	}
-
 	return rv;
 }
 
@@ -1237,23 +1236,23 @@ static void *m_init(struct fuse_conn_info *conn, struct fuse_config *cfg)
 	cfg->attr_timeout = 0;
 	cfg->negative_timeout = 0;
 
-	/*
-	 * Check if FUSE_PASSTHROUGH should be enabled.
-	 * Requires ETCFS_ENABLE_PASSTHROUGH environment variable to be set.
-	 */
+
 	const char *enable_passthrough = getenv("ETCFS_ENABLE_PASSTHROUGH");
 	// check if we want to enable passthrough or not
 	if (enable_passthrough && (strcmp(enable_passthrough, "1") == 0 || strcmp(enable_passthrough, "yes") == 0)) {
-		// check if the kernel fuse implementation supports passthrough. if we do, begin negotiation
+		// if we do, check if the kernel fuse implementation supports passthrough.
 		if (conn->capable & FUSE_CAP_PASSTHROUGH) {
 			// add FUSE_CAP_PASSTHROUGH to the list of wanted capabilities
 			conn->want |= FUSE_CAP_PASSTHROUGH;
-			// grab the fuse context
+			// now we need to use the fuse context to grab a sessino to grab ths ession fd
 			struct fuse_context *context = fuse_get_context();
 			if (context && context->fuse) {
 				struct fuse_session *session = fuse_get_session(context->fuse);
+				// open a session
 				if (session) {
+					// grab the session_fd from the fuse session
 					fuse_dev_fd = fuse_session_fd(session);
+					// and if its a valid fd, enable passthrough
 					if (fuse_dev_fd >= 0) {
 						use_fuse_passthrough = 1;
 						DEBUG("FUSE_PASSTHROUGH", "succesfully enabled");
