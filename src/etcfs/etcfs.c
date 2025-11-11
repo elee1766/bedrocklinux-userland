@@ -1957,13 +1957,8 @@ static int m_flush(const char *path, struct fuse_file_info *fi)
 	DEBUG("m_flush", path);
 	FS_IMP_SETUP_FD(fi->fh, path, 0);
 
-	/*
-	 * In passthrough mode, the kernel handles flushing directly
-	 * from what i understand, this would only flush userspace writes, and we would never have any, so we dont need to ever call this in passthrough mode.
-	 */
-	if (!(fi->flags & FOPEN_PASSTHROUGH)) {
-		rv = close(dup(fi->fh));
-	}
+	// thinking about it, i believe that we do need to call flush even in passthrough, since i think the kernel will have the same page cache for both
+	rv = close(dup(fi->fh));
 
 	FS_IMP_RETURN(rv);
 }
