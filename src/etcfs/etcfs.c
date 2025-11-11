@@ -1954,7 +1954,8 @@ static int m_flush(const char *path, struct fuse_file_info *fi)
 	FS_IMP_SETUP_FD(fi->fh, path, 0);
 
 	/*
-	 * In passthrough mode, the kernel handles flushing directly, so we only have to do anything here in the non passthrough mode
+	 * In passthrough mode, the kernel handles flushing directly
+	 * from what i understand, this would only flush userspace writes, and we would never have any, so we dont need to ever call this in passthrough mode.
 	 */
 	if (!(fi->flags & FOPEN_PASSTHROUGH)) {
 		rv = close(dup(fi->fh));
