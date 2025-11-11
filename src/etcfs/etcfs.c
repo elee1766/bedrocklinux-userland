@@ -1797,6 +1797,8 @@ static int m_create(const char *path, mode_t mode, struct fuse_file_info *fi)
 				fi->backing_id = backing_id;
 				fi->flags |= FOPEN_PASSTHROUGH;
 				fi->fh = fd;  /* Keep fd for fallback, kernel uses backing_id */
+				// when we open in passthrough mode, we need to drop the old page cache, according to libfuse https://re/blob/master/example/passthrough_hp.cc
+				fi->keep_cache = false;
 				DEBUG("m_create: using passthrough", path);
 			} else {
 				/* Passthrough registration failed, use traditional mode */
@@ -1839,6 +1841,8 @@ static int m_open(const char *path, struct fuse_file_info *fi)
 					fi->backing_id = backing_id;
 					fi->flags |= FOPEN_PASSTHROUGH;
 					fi->fh = fd;  /* Keep fd for fallback, kernel uses backing_id */
+					// when we open in passthrough mode, we need to drop the old page cache, according to libfuse https://re/blob/master/example/passthrough_hp.cc
+					fi->keep_cache = false;
 					DEBUG("m_open: using passthrough", path);
 				} else {
 					/* Passthrough registration failed, use traditional mode */
